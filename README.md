@@ -86,6 +86,29 @@
 
 🔀 Git workflow : push & pull
 
+🔹 Connecter un projet local à GitHub (première fois) Pousser des modifications (push)
+
+    Initialiser Git dans le projet :
+    git init
+    
+    Vérifier l’état des fichiers :
+    git status
+    
+    Ajouter tous les fichiers :
+    git add .
+    
+    Faire le premier commit :
+    git commit -m "Initial commit"
+    
+    Ajouter le repository distant (créé sur GitHub) :
+    git remote add origin https://github.com/ibrahimrh555/Suivi_de_Consommation_d_Eau
+    
+    Définir la branche principale :
+    git branch -M main
+    
+    Envoyer le projet vers GitHub :
+    git push -u origin main
+
 🔹 Pousser des modifications (push)
 
     Vérifier l’état des fichiers :
