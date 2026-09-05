@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BarChart3, Bell, Shield, TrendingUp, Zap, CheckCircle, LogIn, Users, Eye, EyeOff, X, Menu } from "lucide-react";
 import { toast } from "sonner";
-import axios from "axios";
+import { api } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Home = () => {
@@ -24,7 +24,7 @@ const Home = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/core/login/", {
+      const response = await api.post("/login/", {
         numPolice: NumPolice,
         mot_de_passe: password,
       });
@@ -38,12 +38,9 @@ const Home = () => {
         prenom: abonne.prenom,
         telephone: abonne.telephone,
         adresse: abonne.adresse,
-        mot_de_passe: abonne.mot_de_passe,    
       });
 
       toast.success("Connexion réussie !");
-      console.log("Abonné connecté :", abonne);
-
       navigate("/Dashboard");
     } catch (error: any) {
       console.log("Erreur backend :", error.response?.data);

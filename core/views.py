@@ -9,10 +9,14 @@ from rest_framework import generics, viewsets
 from datetime import date, timedelta
 from django.utils.timezone import now
 from django.shortcuts import get_object_or_404
+from rest_framework.throttling import ScopedRateThrottle
 
 
 # Login d un abonné
 class LoginView(APIView):
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "login"
+
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
@@ -27,7 +31,6 @@ class LoginView(APIView):
                     "numPolice": abonne.numPolice,
                     "telephone": abonne.telephone,
                     "adresse": abonne.adresse,
-                    "mot_de_passe": abonne.mot_de_passe,
                 }
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

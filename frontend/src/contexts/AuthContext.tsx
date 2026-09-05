@@ -4,12 +4,11 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 interface User {
   id: number;
   email?: string;
-  numPolice?: number;
+  numPolice?: string;
   nom: string;
   prenom: string;
-  telephone?: number;
+  telephone?: string;
   adresse?: string;
-  mot_de_passe: string;
 }
 
 interface AuthContextType {
@@ -35,15 +34,15 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem('user');
+    const savedUser = sessionStorage.getItem('user');
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
+      sessionStorage.setItem('user', JSON.stringify(user));
     } else {
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('user');
     }
   }, [user]);
 
@@ -53,7 +52,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logout = () => {
    
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('user');
   
     // 2. On met à jour l'état React
     setUser(null);
