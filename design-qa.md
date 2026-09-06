@@ -1,38 +1,46 @@
-# Design QA — AquaWatch Dashboard
+# Design QA — Landing page AquaWatch
 
-- Source visual truth: user-provided dashboard references.
-- Implementation: browser-rendered dashboard from the local Vite preview.
-- Viewport: 1365 × 936 CSS px, device scale factor 1.
-- State: desktop, light theme, API offline fallback data.
-- Evidence: the two source references and the browser implementation capture were reviewed together in one comparison pass.
+## Evidence
+
+- Source visual truth: Figma `LXhLQv0APhYVlLuwPcXTZu`, node `108:84` — Travel Agency Landing Page UI.
+- Implementation: page d’accueil AquaWatch rendue dans le navigateur cloud.
+- Viewport: 1363 × 936 CSS px, device pixel ratio 1.
+- State: haut de page et section de connexion, thème clair.
+- Primary interactions tested: navigation vers la connexion, défilement fluide, affichage/masquage du mot de passe.
+- Console: aucune erreur ou alerte récente provenant de l’application après rechargement.
+
+## Full-view comparison
+
+La page reprend la structure du template Figma : navigation horizontale légère, hero en deux colonnes avec visuel dominant, grille de quatre services, trois cartes principales, parcours en étapes, témoignage, grand bloc d’action et footer en colonnes. Le contenu de voyage a été remplacé par le parcours AquaWatch.
+
+## Required fidelity surfaces
+
+- Fonts and typography: hiérarchie forte et compacte proche du template ; titres très grands, sous-titres en capitales et textes secondaires légers.
+- Spacing and layout rhythm: sections aérées, largeur maximale centrée, grands intervalles verticaux et cartes arrondies.
+- Colors and visual tokens: palette AquaWatch conservée avec `#0869f7`, `#17181a`, blanc et `#f7f8fb`.
+- Image quality and asset fidelity: illustration AquaWatch existante, nette et correctement intégrée dans la composition du hero.
+- Copy and content: contenu entièrement adapté à la surveillance de consommation d’eau.
 
 ## Findings
 
-No actionable P0, P1, or P2 mismatch remains.
+- Aucun problème P0, P1 ou P2 restant.
+- L’écart de couleurs par rapport au Figma est intentionnel et répond à la demande de conserver les couleurs du dashboard.
+- Les illustrations de voyage ne sont pas reprises car elles ne correspondent pas au produit AquaWatch.
 
-- Fonts and typography: sans-serif hierarchy, weights, muted labels, and compact table type match the reference language.
-- Spacing and layout rhythm: dark 255 px sidebar, narrow metric column, large white content panels, restrained 20 px gaps, and compact radii preserve the reference proportions.
-- Colors and visual tokens: charcoal navigation, cool gray canvas, white panels, royal blue active/action states, and green health indicators match the selected direction.
-- Image quality and assets: the existing AquaWatch logo is reused; all interface glyphs come from the project icon library. No placeholder imagery is present.
-- Copy and content: all CRM/car-rental content was replaced with French AquaWatch consumption, sensor, alert, pressure, and goal data.
-- Responsive behavior: the main grid collapses below the desktop breakpoint and the existing sidebar trigger remains available on small screens.
-- Accessibility: semantic headings/table structure, labeled notification control, readable contrast, and visible action states are present.
+## Focused region comparison
 
-## Primary interactions tested
-
-- Dashboard route opens successfully.
-- Sidebar navigation links are present.
-- Refresh control is enabled and exposes a loading state.
-- Search field and notification control render and are keyboard-addressable.
-- Browser console: no application error was visible during the captured state.
+Le hero et la section de connexion ont été inspectés séparément. Le hero conserve la composition texte/illustration du template et le formulaire reste lisible, équilibré et fonctionnel.
 
 ## Comparison history
 
-- Initial implementation pass: no P0/P1/P2 issue found in the combined visual comparison, so no corrective iteration was required.
+- Passage 1: les nouvelles classes Tailwind n’étaient pas chargées par la prévisualisation, provoquant un chevauchement du hero.
+- Correction: redémarrage complet de la prévisualisation et ajout d’une protection contre la compression du bouton de navigation.
+- Passage 2: hero, navigation et connexion correctement rendus ; aucune différence P0/P1/P2.
 
 ## Follow-up polish
 
-- P3: replace the legacy raster logo with a high-resolution transparent brand asset when one becomes available.
-- P3: add compact mobile-specific chart ticks after testing on a physical phone.
+- P3 possible: ajouter plus tard des captures automatisées pour les petits écrans.
+
+## Final result
 
 final result: passed
