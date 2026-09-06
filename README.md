@@ -1,146 +1,142 @@
-﻿💧 Système Intelligent de Suivi de Consommation d’Eau Domestique
+# AquaWatch — Suivi intelligent de consommation d’eau
 
+AquaWatch est une application web de suivi de la consommation d’eau domestique en temps réel. Elle associe un capteur de débit connecté à un ESP32, une API Django REST et un tableau de bord React moderne.
 
+## Fonctionnalités
 
-📌 Description
+- suivi du débit et du volume consommé ;
+- tableau de bord quotidien, hebdomadaire et mensuel ;
+- objectifs personnalisés de consommation ;
+- alertes de fuite et de surconsommation ;
+- historique et comparaison des mesures ;
+- espace utilisateur protégé par authentification.
 
-    Ce projet est un système intelligent de surveillance de la consommation d’eau domestique en temps réel.
-    Il permet aux abonnés de suivre leur consommation, de recevoir des alertes en cas de dépassement de seuils personnalisés, et d’optimiser leur utilisation de l’eau.
+## Architecture
 
-    L’application combine une partie IoT (ESP32 + capteur de débit d’eau) et une partie logicielle (backend + frontend) pour collecter, traiter et visualiser les données.
+| Partie | Technologies |
+|---|---|
+| IoT | ESP32, capteur de débit YF-S201 |
+| Backend | Python, Django, Django REST Framework |
+| Base de données | MySQL |
+| Frontend | React, TypeScript, Vite |
+| Interface | Tailwind CSS, shadcn/ui, Recharts |
 
+```text
+Capteur YF-S201 → ESP32 → API Django REST → MySQL
+                                  ↓
+                         Dashboard React
+```
 
-🚀 Fonctionnalités principales
+## Prérequis
 
-    📊 Suivi en temps réel de la consommation d’eau (quotidienne, hebdomadaire, mensuelle).
-    ⚠️ Alertes intelligentes en cas de dépassement des seuils.
-    👤 Gestion des profils utilisateurs (abonnés, centres, employés).
-    🗄️ Stockage des mesures dans une base de données relationnelle (MySQL).
-    📈 Tableaux de bord avec statistiques et graphiques.
-    🔒 Authentification simple (abonnés & employés).
+- Python 3.11 ou version supérieure ;
+- Node.js 20 ou version supérieure ;
+- npm ;
+- MySQL.
 
+## Installation
 
-🛠️ Technologies utilisées
+### 1. Cloner la branche modernisée
 
-    🔹 IoT
-    ESP32 : microcontrôleur connecté au Wi-Fi.
-    Capteur YF-S201 : mesure du débit d’eau.
+```bash
+git clone --branch modernisation-fullstack https://github.com/ibrahimrh555/Suivi_de_Consommation_d_Eau.git
+cd Suivi_de_Consommation_d_Eau
+```
 
-    🔹 Backend
-    Django (Python) : gestion des données et logique métier.
-    MySQL : base de données relationnelle.
+### 2. Configurer l’environnement
 
-    🔹 Frontend
-    React (Vite + TypeScript) : interface utilisateur moderne et rapide.
-    TailwindCSS + ShadCN/UI : design réactif et élégant.
+Copiez le fichier d’exemple, puis adaptez les valeurs à votre environnement :
 
+```powershell
+Copy-Item .env.example .env
+```
 
-⚙️ Installation et utilisation
+Sous macOS ou Linux :
 
-    1️⃣ Cloner le projet
-    git clone https://github.com/ibrahimrh555/consomation.git
-    cd consomation
+```bash
+cp .env.example .env
+```
 
-    2️⃣ Backend (Django)
-    cd backend
-    pip install -r requirements.txt
-    python manage.py migrate
-    python manage.py createsuperuser
-    python manage.py generer_mesures --numPolice=235
-    python manage.py runserver
-    Accéder au backend via :
-    👉 http://127.0.0.1:8000/
+Variables principales :
 
-    3️⃣ Frontend (React + Vite)
-    cd frontend
-    npm install
-    npm run dev
-    Accéder au frontend via :
-    👉 http://localhost:3001/
+| Variable | Description |
+|---|---|
+| `DJANGO_SECRET_KEY` | Clé secrète Django |
+| `DJANGO_DEBUG` | Mode développement (`True` ou `False`) |
+| `DB_NAME`, `DB_USER`, `DB_PASSWORD` | Accès à MySQL |
+| `CORS_ALLOWED_ORIGINS` | Origines autorisées pour le frontend |
+| `VITE_API_URL` | URL de l’API utilisée par React |
 
-📂 Structure du projet
+Ne publiez jamais votre fichier `.env` ni vos identifiants de base de données.
 
-    consomation/
-    │            
-    ├── core/              # App principale (abonnés, mesures, alertes)
-    │   ├── managment/
-    │   └── migrations/
-    │
-    ├── backend/           #
-    │   
-    │── frontend/          # Frontend React (Vite + TS)
-    │   ├── src/
-    │   └── public/
-    │
-    │── esp32/             # Code ESP32 pour capteur YF-S201
-    │── manage.py
-    └── README.md          # Documentation du projet
+### 3. Lancer le backend
 
+Depuis la racine du projet :
 
-📊 Exemple de données générées
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
 
-    Mesures toutes les 5 minutes (débit en L/min).
-    Alertes déclenchées lors d’un dépassement du seuil configuré.
-    Statistiques quotidiennes, hebdomadaires et mensuelles.
+Le backend est disponible sur `http://127.0.0.1:8000/` et l’API sous `/core/`.
 
+Pour créer un compte administrateur :
 
-🔀 Git workflow : push & pull
+```bash
+python manage.py createsuperuser
+```
 
-🔹 Connecter un projet local à GitHub (première fois) Pousser des modifications (push)
+### 4. Lancer le frontend
 
-    Initialiser Git dans le projet :
-    git init
-    
-    Vérifier l’état des fichiers :
-    git status
-    
-    Ajouter tous les fichiers :
-    git add .
-    
-    Faire le premier commit :
-    git commit -m "Initial commit"
-    
-    Ajouter le repository distant (créé sur GitHub) :
-    git remote add origin https://github.com/ibrahimrh555/Suivi_de_Consommation_d_Eau
-    
-    Définir la branche principale :
-    git branch -M main
-    
-    Envoyer le projet vers GitHub :
-    git push -u origin main
+Dans un deuxième terminal :
 
-🔹 Pousser des modifications (push)
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-    Vérifier l’état des fichiers :
-    git status
+Vite affiche l’adresse locale du frontend dans le terminal.
 
-    Ajouter les fichiers modifiés :
-    git add .
+## Vérification du frontend
 
-    Faire un commit avec un message clair :
-    git commit -m "1"
+```bash
+cd frontend
+npm run lint
+npm run build
+```
 
-    Envoyer les changements vers GitHub :
-    git push origin main
+## Structure du projet
 
-🔹 Récupérer les mises à jour (pull)
+```text
+Suivi_de_Consommation_d_Eau/
+├── backend/        # Configuration Django
+├── core/           # Modèles, API, logique métier et migrations
+├── esp32/          # Programme du capteur connecté
+├── frontend/       # Application React + TypeScript
+├── .env.example    # Exemple de configuration
+├── manage.py
+└── requirements.txt
+```
 
-    Mettre à jour votre dépôt local avec la dernière version :
-    git pull origin main
+## Récupérer les mises à jour de cette branche
 
-    En cas de conflit :
-    Modifier les fichiers concernés.
+```bash
+git fetch origin
+git switch modernisation-fullstack
+git pull origin modernisation-fullstack
+```
 
-    Refaire :
-    git add .
-    git commit -m "Résolution des conflits"
-    git push origin main    
+Si la branche n’existe pas encore localement :
 
+```bash
+git fetch origin
+git switch --track origin/modernisation-fullstack
+```
 
+## Auteur
 
-👥 Auteurs
-
-
-    Projet réalisé par Rahmani Ibrahim dans le cadre d’un projet académique.
-
-
+Projet académique réalisé par **Rahmani Ibrahim**.
