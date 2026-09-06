@@ -17,7 +17,7 @@ AquaWatch est une application web de suivi de la consommation d’eau domestique
 |---|---|
 | IoT | ESP32, capteur de débit YF-S201 |
 | Backend | Python, Django, Django REST Framework |
-| Base de données | MySQL |
+| Base de données | PostgreSQL (Neon en production), SQLite en local |
 | Frontend | React, TypeScript, Vite |
 | Interface | Tailwind CSS, shadcn/ui, Recharts |
 
@@ -32,7 +32,7 @@ Capteur YF-S201 → ESP32 → API Django REST → MySQL
 - Python 3.11 ou version supérieure ;
 - Node.js 20 ou version supérieure ;
 - npm ;
-- MySQL.
+- un compte PostgreSQL Neon pour le déploiement.
 
 ## Installation
 
@@ -63,7 +63,7 @@ Variables principales :
 |---|---|
 | `DJANGO_SECRET_KEY` | Clé secrète Django |
 | `DJANGO_DEBUG` | Mode développement (`True` ou `False`) |
-| `DB_NAME`, `DB_USER`, `DB_PASSWORD` | Accès à MySQL |
+| `DATABASE_URL` | Connexion PostgreSQL Neon (SQLite si absente en local) |
 | `CORS_ALLOWED_ORIGINS` | Origines autorisées pour le frontend |
 | `VITE_API_URL` | URL de l’API utilisée par React |
 
@@ -108,6 +108,48 @@ cd frontend
 npm run lint
 npm run build
 ```
+
+## Déploiement gratuit
+
+La production utilise :
+
+- Cloudflare Pages pour le frontend ;
+- Koyeb pour l'API Django ;
+- Neon pour PostgreSQL.
+
+Les Pull Requests vers `main` doivent réussir les contrôles backend et frontend.
+Le workflow de production ne s'exécute qu'après un push ou un merge dans `main`.
+
+### Configuration GitHub
+
+Dans **Settings → Secrets and variables → Actions**, ajoutez :
+
+Secrets :
+
+- `KOYEB_API_TOKEN`
+- `KOYEB_SERVICE_ID`
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
+
+Variables :
+
+- `VITE_API_URL` : par exemple `https://aquawatch.koyeb.app/core`
+- `CLOUDFLARE_PAGES_PROJECT` : nom du projet Pages
+
+### Configuration Koyeb
+
+Configurez le service depuis le dépôt GitHub, branche `main`, avec le
+`Dockerfile` situé à la racine. Ajoutez au service :
+
+- `DATABASE_URL`
+- `DJANGO_SECRET_KEY`
+- `DJANGO_DEBUG=False`
+- `DJANGO_ALLOWED_HOSTS=.koyeb.app`
+- `DJANGO_SECURE_SSL_REDIRECT=True`
+- `CORS_ALLOWED_ORIGINS=https://votre-site.pages.dev`
+- `CSRF_TRUSTED_ORIGINS=https://votre-site.pages.dev`
+
+Le point de contrôle de disponibilité est `/health/`.
 
 ## Structure du projet
 
