@@ -1,56 +1,35 @@
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  Activity,
-  BarChart3,
-  Bell,
-  CheckCircle2,
-  Droplets,
-  Eye,
-  EyeOff,
-  Gauge,
-  Leaf,
-  LockKeyhole,
-  LogIn,
-  Menu,
-  ShieldCheck,
-  UserRound,
-  X,
-} from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { BarChart3, Bell, Shield, TrendingUp, Zap, CheckCircle, LogIn, Users, Eye, EyeOff, X, Menu } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 
-const features = [
-  { icon: Activity, title: "Suivi en direct", text: "Consultez votre débit et votre volume d’eau en temps réel." },
-  { icon: Bell, title: "Alertes intelligentes", text: "Détectez rapidement une fuite ou une consommation inhabituelle." },
-  { icon: BarChart3, title: "Historique clair", text: "Comparez vos usages par jour, semaine et mois." },
-];
-
 const Home = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [numPolice, setNumPolice] = useState("");
+  const [NumPolice, setPolice] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
-
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    setIsMenuOpen(false);
-  };
-
-  const handleLogin = async (event: React.FormEvent) => {
-    event.preventDefault();
+  
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
 
     try {
-      const { data } = await api.post("/login/", {
-        numPolice,
+      const response = await api.post("/login/", {
+        numPolice: NumPolice,
         mot_de_passe: password,
       });
-      const abonne = data.abonne;
+
+      const abonne = response.data.abonne;
       login({
         id: abonne.id,
         numPolice: abonne.numPolice,
@@ -60,188 +39,414 @@ const Home = () => {
         telephone: abonne.telephone,
         adresse: abonne.adresse,
       });
-      toast.success("Connexion réussie");
-      navigate("/dashboard");
+
+      toast.success("Connexion réussie !");
+      navigate("/Dashboard");
     } catch (error: any) {
+      console.log("Erreur backend :", error.response?.data);
       toast.error(
         error.response?.data?.mot_de_passe ||
-          error.response?.data?.numPolice ||
-          "Identifiants incorrects",
+        error.response?.data?.numPolice ||
+        "Échec de la connexion"
       );
     } finally {
       setIsLoading(false);
     }
   };
 
+  const features = [
+    {
+      icon: BarChart3,
+      title: "Dashboard Temps Réel",
+      description: "Visualisez votre consommation d'eau en temps réel avec des graphiques interactifs et des indicateurs dynamiques."
+    },
+    {
+      icon: Bell,
+      title: "Alertes Intelligentes",
+      description: "Recevez des notifications instantanées en cas de fuite détectée ou de dépassement de seuil de consommation."
+    },
+    {
+      icon: TrendingUp,
+      title: "Analyse Avancée",
+      description: "Analysez vos habitudes de consommation avec des rapports détaillés et des comparaisons historiques."
+    },
+    {
+      icon: Shield,
+      title: "Surveillance 24/7",
+      description: "Votre capteur ESP32 surveille en continu votre installation pour détecter toute anomalie."
+    }
+  ];
+
+  const stats = [
+    { value: "15%", label: "Économies moyennes", icon: TrendingUp },
+    { value: "24/7", label: "Surveillance continue", icon: Shield },
+    { value: "< 1s", label: "Détection de fuites", icon: Zap },
+    { value: "99.9%", label: "Fiabilité", icon: CheckCircle }
+  ];
+
+  const navigationItems = [
+    { name: "Accueil", href: "#accueil" },
+    { name: "Connexion", href: "#connexion" },
+    { name: "Fonctionnalités", href: "#fonction" },
+    { name: "Contact", href: "#contact" }
+  ];
+
+  const scrollToSection = (href: string) => {
+    const element = document.querySelector(href);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#f6f7fb] text-[#121826]">
-      <aside className="fixed inset-y-0 left-0 z-50 hidden w-[88px] flex-col items-center bg-[#17181a] py-7 text-white lg:flex">
-        <Link to="/" aria-label="AquaWatch">
-          <img src="/logo - Copie.png" alt="AquaWatch" className="h-11 w-11 object-contain" />
-        </Link>
-        <div className="mt-12 flex flex-1 flex-col gap-4">
-          <button onClick={() => scrollTo("accueil")} className="grid h-11 w-11 place-items-center rounded-lg bg-[#0869f7]" aria-label="Accueil">
-            <Droplets className="h-5 w-5" />
-          </button>
-          <button onClick={() => scrollTo("fonctionnalites")} className="grid h-11 w-11 place-items-center rounded-lg text-zinc-400 transition hover:bg-white/10 hover:text-white" aria-label="Fonctionnalités">
-            <BarChart3 className="h-5 w-5" />
-          </button>
-          <button onClick={() => scrollTo("connexion")} className="grid h-11 w-11 place-items-center rounded-lg text-zinc-400 transition hover:bg-white/10 hover:text-white" aria-label="Connexion">
-            <UserRound className="h-5 w-5" />
-          </button>
-        </div>
-        <ShieldCheck className="h-5 w-5 text-zinc-500" />
-      </aside>
-
-      <div className="lg:pl-[88px]">
-        <header className="sticky top-0 z-40 border-b border-[#e9ebf1] bg-[#f6f7fb]/95 backdrop-blur">
-          <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-5 md:px-8 lg:px-10">
-            <Link to="/" className="flex items-center gap-3">
-              <img src="/logo - Copie.png" alt="" className="h-9 w-9 object-contain lg:hidden" />
+    <div className="min-h-screen bg-gradient-to-br from-water-200 via-background to-water-900 dark:from-water-900 dark:via-background dark:to-water-800">
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full bg-background/90 backdrop-blur-md border-b border-border z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Link to="/">
+                <div className="w-10 h-10  rounded-3xl flex items-center justify-center animate-pulse-glow ">
+                  <img
+                    src="/public/logo - Copie.png"
+                    alt="Mon image"
+                    className="w-10 h-10 object-contain "
+                  />
+                </div>
+              </Link>
               <div>
-                <p className="text-lg font-bold tracking-tight">AquaWatch</p>
-                <p className="text-xs text-[#98a0b3]">Smart Water Monitoring</p>
+                <h1 className="text-xl font-bold bg-water-gradient bg-clip-text text-transparent ">
+                  AquaWatch
+                </h1>
+                <p className="text-xs text-muted-foreground">Smart Water Monitoring</p>
               </div>
-            </Link>
-            <nav className="hidden items-center gap-8 text-sm font-medium text-[#60677a] md:flex">
-              <button onClick={() => scrollTo("accueil")} className="text-[#0869f7]">Accueil</button>
-              <button onClick={() => scrollTo("fonctionnalites")} className="transition hover:text-[#121826]">Fonctionnalités</button>
-              <button onClick={() => scrollTo("connexion")} className="transition hover:text-[#121826]">Connexion</button>
+            </div>
+            
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex space-x-8">
+              {navigationItems.map((item) => (
+                <button
+                  key={item.name}
+                  onClick={() => scrollToSection(item.href)}
+                  className="text-gray-900 font-bold dark:text-gray-100 hover:text-blue-800 dark:hover:text-blue-800 px-3 py-2 text-m  transition-colors"
+                >
+                  {item.name}
+                </button>
+              ))}
             </nav>
-            <button onClick={() => scrollTo("connexion")} className="hidden h-11 items-center gap-2 rounded-lg bg-[#0869f7] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#075bd5] md:flex">
-              <LogIn className="h-4 w-4" /> Se connecter
-            </button>
-            <button onClick={() => setIsMenuOpen((value) => !value)} className="grid h-10 w-10 place-items-center rounded-lg bg-white shadow-sm md:hidden" aria-label="Menu">
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
+
+            {/* Desktop Actions */}
+            <div className="hidden md:flex items-center space-x-4">
+              <ThemeToggle />
+              
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden flex items-center space-x-2">
+              <ThemeToggle />
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
           </div>
+
+          {/* Mobile Navigation */}
           {isMenuOpen && (
-            <nav className="border-t border-[#e9ebf1] bg-white px-5 py-4 md:hidden">
-              {["accueil", "fonctionnalites", "connexion"].map((item) => (
-                <button key={item} onClick={() => scrollTo(item)} className="block w-full rounded-lg px-3 py-3 text-left text-sm font-medium capitalize hover:bg-[#f6f7fb]">
-                  {item === "fonctionnalites" ? "Fonctionnalités" : item}
-                </button>
-              ))}
-            </nav>
+            <div className="md:hidden py-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col space-y-2">
+                {navigationItems.map((item) => (
+                  <button
+                    key={item.name}
+                    onClick={() => {
+                      scrollToSection(item.href);
+                      setIsMenuOpen(false);
+                    }}
+                    className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 text-sm font-medium text-left transition-colors"
+                  >
+                    {item.name}
+                  </button>
+                ))}
+                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                  
+                </div>
+              </div>
+            </div>
           )}
-        </header>
+        </div>
+        
+      </nav>
 
-        <main>
-          <section id="accueil" className="mx-auto grid max-w-[1440px] gap-8 px-5 py-10 md:px-8 lg:grid-cols-[1.15fr_0.85fr] lg:px-10 lg:py-14">
-            <div className="flex flex-col justify-center rounded-2xl bg-white p-7 shadow-sm md:p-11">
-              <div className="mb-8 inline-flex w-fit items-center gap-2 rounded-full bg-[#eaf2ff] px-4 py-2 text-xs font-semibold text-[#0869f7]">
-                <span className="h-2 w-2 rounded-full bg-[#0869f7]" /> Votre eau, sous contrôle
-              </div>
-              <h1 className="max-w-3xl text-4xl font-bold leading-[1.08] tracking-[-0.04em] md:text-6xl">
-                Comprenez chaque litre. <span className="text-[#0869f7]">Économisez simplement.</span>
-              </h1>
-              <p className="mt-6 max-w-2xl text-base leading-7 text-[#70788c] md:text-lg">
-                AquaWatch transforme les mesures de votre capteur ESP32 en informations simples, alertes utiles et objectifs faciles à suivre.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <button onClick={() => scrollTo("connexion")} className="flex h-12 items-center gap-2 rounded-lg bg-[#0869f7] px-6 text-sm font-semibold text-white transition hover:bg-[#075bd5]">
-                  Accéder à mon espace <LogIn className="h-4 w-4" />
-                </button>
-                <button onClick={() => scrollTo("fonctionnalites")} className="h-12 rounded-lg border border-[#e2e5ec] bg-white px-6 text-sm font-semibold text-[#424a5d] transition hover:bg-[#f6f7fb]">
-                  Découvrir AquaWatch
-                </button>
-              </div>
-              <div className="mt-10 grid grid-cols-3 gap-3 border-t border-[#edf0f5] pt-8">
-                <div><p className="text-2xl font-bold">24/7</p><p className="mt-1 text-xs text-[#98a0b3]">Surveillance</p></div>
-                <div><p className="text-2xl font-bold">5 min</p><p className="mt-1 text-xs text-[#98a0b3]">Mise à jour</p></div>
-                <div><p className="text-2xl font-bold text-[#11ad72]">−15%</p><p className="mt-1 text-xs text-[#98a0b3]">Objectif moyen</p></div>
-              </div>
-            </div>
-
-            <div className="relative min-h-[440px] overflow-hidden rounded-2xl bg-[#17181a] p-7 text-white shadow-sm md:p-9">
-              <div className="relative z-10">
-                <div className="flex items-start justify-between">
-                  <div><p className="text-sm text-zinc-400">Consommation aujourd’hui</p><p className="mt-2 text-4xl font-bold">126,4 <span className="text-lg font-medium text-zinc-400">L</span></p></div>
-                  <div className="grid h-12 w-12 place-items-center rounded-xl bg-[#0869f7]"><Gauge className="h-6 w-6" /></div>
-                </div>
-                <div className="mt-8 rounded-xl border border-white/10 bg-white/5 p-5">
-                  <div className="flex items-center justify-between text-sm"><span className="text-zinc-400">Objectif journalier</span><span className="font-semibold">126 / 180 L</span></div>
-                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full w-[70%] rounded-full bg-[#0869f7]" /></div>
-                  <p className="mt-3 text-xs text-zinc-500">53,6 L disponibles aujourd’hui</p>
-                </div>
-              </div>
-              <img src="/1.png" alt="Nature et gestion responsable de l’eau" className="absolute bottom-[-64px] right-[-24px] w-[330px] object-contain opacity-90" />
-              <div className="absolute bottom-7 left-7 z-10 flex items-center gap-2 rounded-lg bg-white px-4 py-3 text-sm font-semibold text-[#121826] shadow-lg md:left-9">
-                <CheckCircle2 className="h-5 w-5 text-[#11ad72]" /> Aucun incident détecté
-              </div>
-            </div>
-          </section>
-
-          <section id="fonctionnalites" className="mx-auto max-w-[1440px] px-5 pb-10 md:px-8 lg:px-10">
-            <div className="mb-6 flex items-end justify-between">
-              <div><p className="text-sm font-semibold text-[#0869f7]">Fonctionnalités</p><h2 className="mt-2 text-2xl font-bold tracking-tight md:text-3xl">L’essentiel sur un seul écran</h2></div>
-              <p className="hidden max-w-md text-right text-sm leading-6 text-[#7e8699] md:block">Des données lisibles pour agir rapidement et réduire le gaspillage.</p>
-            </div>
-            <div className="grid gap-5 md:grid-cols-3">
-              {features.map(({ icon: Icon, title, text }) => (
-                <article key={title} className="rounded-2xl bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-                  <div className="grid h-12 w-12 place-items-center rounded-xl bg-[#eaf2ff] text-[#0869f7]"><Icon className="h-6 w-6" /></div>
-                  <h3 className="mt-6 text-lg font-semibold">{title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-[#7e8699]">{text}</p>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <section id="connexion" className="mx-auto grid max-w-[1440px] gap-5 px-5 pb-12 md:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:px-10">
-            <div className="rounded-2xl bg-[#0869f7] p-7 text-white shadow-sm md:p-10">
-              <div className="grid h-12 w-12 place-items-center rounded-xl bg-white/15"><Leaf className="h-6 w-6" /></div>
-              <h2 className="mt-8 text-3xl font-bold leading-tight">Votre tableau de bord personnel vous attend.</h2>
-              <p className="mt-4 max-w-lg text-sm leading-6 text-blue-100">Connectez-vous avec votre numéro de police pour consulter vos mesures, alertes et objectifs.</p>
-              <div className="mt-9 space-y-4 text-sm">
-                <div className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5" /> Données personnelles centralisées</div>
-                <div className="flex items-center gap-3"><ShieldCheck className="h-5 w-5" /> Accès sécurisé</div>
-                <div className="flex items-center gap-3"><Droplets className="h-5 w-5" /> Mesures faciles à comprendre</div>
-              </div>
-            </div>
-
-            <div className="rounded-2xl bg-white p-7 shadow-sm md:p-10">
-              <div className="mb-8">
-                <p className="text-sm font-semibold text-[#0869f7]">Espace abonné</p>
-                <h2 className="mt-2 text-2xl font-bold">Connexion</h2>
-                <p className="mt-2 text-sm text-[#8a92a5]">Saisissez vos identifiants pour continuer.</p>
-              </div>
-              <form onSubmit={handleLogin} className="space-y-5">
-                <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-[#424a5d]">Numéro de police</span>
-                  <span className="flex h-12 items-center gap-3 rounded-lg border border-[#e2e5ec] px-4 transition focus-within:border-[#0869f7] focus-within:ring-2 focus-within:ring-blue-100">
-                    <UserRound className="h-5 w-5 text-[#a1a8b8]" />
-                    <input type="text" inputMode="numeric" value={numPolice} onChange={(event) => setNumPolice(event.target.value)} required placeholder="Ex. 235" className="w-full bg-transparent text-sm outline-none placeholder:text-[#b4bac7]" />
-                  </span>
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-[#424a5d]">Mot de passe</span>
-                  <span className="flex h-12 items-center gap-3 rounded-lg border border-[#e2e5ec] px-4 transition focus-within:border-[#0869f7] focus-within:ring-2 focus-within:ring-blue-100">
-                    <LockKeyhole className="h-5 w-5 text-[#a1a8b8]" />
-                    <input type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} required placeholder="Votre mot de passe" className="w-full bg-transparent text-sm outline-none placeholder:text-[#b4bac7]" />
-                    <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"} className="text-[#8e96a8] hover:text-[#424a5d]">
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                    </button>
-                  </span>
-                </label>
-                <button type="submit" disabled={isLoading} className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#0869f7] text-sm font-semibold text-white transition hover:bg-[#075bd5] disabled:cursor-not-allowed disabled:opacity-60">
-                  {isLoading ? "Connexion en cours…" : <><LogIn className="h-4 w-4" /> Se connecter</>}
-                </button>
-              </form>
-            </div>
-          </section>
-        </main>
-
-        <footer className="border-t border-[#e4e7ee] bg-white">
-          <div className="mx-auto flex max-w-[1440px] flex-col gap-3 px-5 py-7 text-sm text-[#7e8699] md:flex-row md:items-center md:justify-between md:px-8 lg:px-10">
-            <div className="flex items-center gap-2 font-semibold text-[#30384a]"><Droplets className="h-4 w-4 text-[#0869f7]" /> AquaWatch</div>
-            <p>Projet de suivi intelligent de consommation d’eau.</p>
-            <p>© {new Date().getFullYear()} Rahmani Ibrahim</p>
+      {/* Hero Section */}
+      <section id="accueil" className="pt-32 pb-4 px-6">
+        <div className="max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-2 items-center gap-16 mb-20">
+          
+          {/* Texte à gauche */}
+          <div className="text-left animate-fade-in pl-4 md:pl-8">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-water-gradient bg-clip-text text-transparent leading-tight">
+              Surveillez Votre<br />
+              Consommation d'Eau
+            </h1>
+            <p className="text-xl text-muted-foreground mb-8 max-w-xl leading-relaxed">
+              AquaWatch transforme la gestion de votre consommation d'eau grâce à des capteurs IoT intelligents, 
+              des alertes en temps réel et des analyses prédictives pour optimiser votre usage et détecter les fuites instantanément.
+            </p>
           </div>
-        </footer>
-      </div>
+
+          {/* Image à droite */}
+          <div className="flex justify-center md:justify-end animate-fade-in pr-4 md:pr-8">
+            <img 
+              src="public/1.png" 
+              alt="Illustration surveillance d'eau" 
+              className="w-full max-w-md rounded-2xl "
+            />
+          </div>
+        </div>
+        </div>
+      </section>
+
+      {/* Login Section */}
+      <section id="connexion" className="py-20 px-6 bg-gradient-to-br from-water-700 to-water-800">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-6 text-white">
+              Connexion
+            </h2>
+          </div>
+
+          <div className="flex justify-center">
+            <Card className="w-full max-w-md bg-white/10 backdrop-blur-sm border-white/20 shadow-2xl animate-scale-in">
+              <CardHeader className="space-y-1 pb-6">
+                <div className="flex items-center justify-center mb-4">
+                  <div className="w-12 h-12  rounded-3xl flex items-center justify-center animate-pulse-glow ">
+                  <img
+                    src="/public/logo - Copie.png"
+                    alt="Mon image"
+                    className="w-12 h-12 object-contain "
+                  />
+                </div>
+                </div>
+                <CardTitle className="text-2xl text-center text-white">
+                  Connexion
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="policeNumber" className="text-white font-medium">
+                      Numéro de Police
+                    </Label>
+                    <Input
+                      id="policeNumber"
+                      name="policeNumber"
+                      type="number"
+                      placeholder="Entrez votre numéro de police"
+                      value={NumPolice}
+                      onChange={(e) => setPolice(e.target.value)}
+                      required
+                      className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white focus:ring-white/20 transition-all duration-200"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="text-white font-medium">
+                      Mot de Passe
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Entrez votre mot de passe"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white focus:ring-white/20 transition-all duration-200 pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-white/10"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-white/60" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-white/60" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full bg-white text-water-700 hover:bg-white/90 font-semibold py-3 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg"
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="w-4 h-4 border-2 border-water-700 border-t-transparent rounded-full animate-spin" />
+                        <span>Connexion en cours...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <LogIn className="w-4 h-4" />
+                        <span>Se Connecter</span>
+                      </div>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="fonction"  className="py-20 px-6 bg-card">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6 bg-water-gradient bg-clip-text text-transparent">
+              Fonctionnalités Avancées
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Découvrez comment AquaWatch révolutionne la gestion de l'eau avec des technologies de pointe
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {features.map((feature, index) => (
+              <Card key={index} className="p-8 bg-water-gradient-light border-border hover:shadow-xl transition-all duration-300 transform hover:scale-102 animate-fade-in">
+                <CardContent className="p-0">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-water-gradient rounded-xl flex items-center justify-center flex-shrink-0">
+                      <feature.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
+                      <p className="text-gray-700 leading-relaxed">{feature.description}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Demo Section */}
+      <section id="contact" className="py-20 px-6 bg-gradient-to-br from-water-50 to-water-100 dark:from-water-900 dark:to-water-800">
+        <div className="max-w-7xl mx-auto text-center">
+          <h2 className="text-4xl font-bold mb-6 bg-water-gradient bg-clip-text text-transparent">
+            Interface Intuitive et Moderne
+          </h2>
+          <p className="text-xl mb-12 text-muted-foreground max-w-3xl mx-auto">
+            Accédez à toutes vos données depuis un dashboard élégant et responsive, 
+            optimisé pour tous vos appareils
+          </p>
+          
+          <div className="bg-card/70 backdrop-blur-sm rounded-2xl p-8 max-w-4xl mx-auto border border-border">
+            <div className="grid md:grid-cols-3 gap-6 text-center">
+              <div className="p-6">
+                <BarChart3 className="w-12 h-12 mx-auto mb-4 text-water-600" />
+                <h3 className="text-lg font-semibold mb-2 text-foreground">Graphiques Interactifs</h3>
+                <p className="text-muted-foreground text-sm">Visualisations en temps réel de votre consommation</p>
+              </div>
+              <div className="p-6">
+                <Bell className="w-12 h-12 mx-auto mb-4 text-water-600" />
+                <h3 className="text-lg font-semibold mb-2 text-foreground">Alertes Intelligentes</h3>
+                <p className="text-muted-foreground text-sm">Notifications instantanées et personnalisables</p>
+              </div>
+              <div className="p-6">
+                <Users className="w-12 h-12 mx-auto mb-4 text-water-600" />
+                <h3 className="text-lg font-semibold mb-2 text-foreground">Multi-utilisateurs</h3>
+                <p className="text-muted-foreground text-sm">Gestion de plusieurs capteurs et comptes</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* CTA Section */}
+      <section className="py-20 px-6 bg-card">
+        <div className="max-w-4xl mx-auto text-center text-white">
+          <h2 className="text-4xl font-bold mb-6 bg-water-gradient bg-clip-text text-transparent">
+            Prêt à Optimiser Votre Consommation d'Eau ?
+          </h2>
+          <p className="text-xl mb-8 text-muted-foreground">
+            Rejoignez des milliers d'utilisateurs qui économisent l'eau et réduisent leurs factures avec AquaWatch
+          </p>
+          
+        </div>
+
+        {/* Stats */}
+        <div className="grid md:grid-cols-4 gap-6">
+          {stats.map((stat, index) => (
+            <Card key={index} className="p-8 bg-water-gradient-light border-border hover:shadow-xl transition-all duration-300 transform hover:scale-102 animate-fade-in">
+                <CardContent className="p-0">
+                <stat.icon className="w-10 h-10 text-water-600 mx-auto mb-4" />
+                <div className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</div>
+                <div className="text-gray-700 font-medium">{stat.label}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="col-span-1 md:col-span-2">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2  rounded-xl">
+                  <img
+                    src="/public/logo - Copie.png"
+                    alt="Mon image"
+                    className="w-10 h-10 object-contain "
+                  />
+                </div>
+                
+                <span className="text-xl font-bold">AquaWatch</span>
+              </div>
+              <p className="text-gray-400 mb-4 max-w-md">
+                Solution complète de surveillance intelligente pour optimiser votre consommation d'eau 
+                et détecter les anomalies en temps réel.
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Fonctionnalités</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>Surveillance temps réel</li>
+                <li>Alertes intelligentes</li>
+                <li>Historique détaillé</li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Support</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>Documentation</li>
+                <li>Contact support</li>
+                <li>FAQ</li>
+                <li>Tutoriels</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2025 AquaWatch. Tous droits réservés.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
+
 
 export default Home;
