@@ -1,77 +1,53 @@
-
-import { BarChart3, History, Settings, Bell } from "lucide-react";
-import { NavLink, useLocation,Link } from "react-router-dom";
-
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,} from "@/components/ui/sidebar";
+import { BarChart3, Bell, History, LogOut, Settings } from "lucide-react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 
 const items = [
-  { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
+  { title: "Tableau de bord", url: "/dashboard", icon: BarChart3 },
   { title: "Historique", url: "/history", icon: History },
-  { title: "Alerts", url: "/alerts", icon: Bell },
+  { title: "Alertes", url: "/alerts", icon: Bell },
   { title: "Paramètres", url: "/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
   const { state } = useSidebar();
-  const location = useLocation();
-  const currentPath = location.pathname;
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const collapsed = state === "collapsed";
 
-  const isActive = (path: string) => currentPath === path;
-  const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive 
-      ? "bg-water-gradient text-white font-medium hover:bg-water-600" 
-      : "hover:bg-water-100 text-water-700";
+  const handleLogout = () => {
+    logout();
+    navigate("/", { replace: true });
+  };
 
   return (
-    <Sidebar className="border-r border-blue-200/50 bg-white/80 backdrop-blur">
-      <SidebarContent className="p-4">
-        <div className="mb-8 flex items-center space-x-3">
-          <Link to="/">
-            <div className="w-10 h-10  rounded-3xl flex items-center justify-center animate-pulse-glow ">
-              <img
-                src="/public/logo - Copie.png"
-                alt="Mon image"
-                className="w-10 h-10 object-contain "
-              />
-            </div>
-          </Link>
-          {!collapsed && (
-            <div>
-              <h2 className="text-xl font-bold bg-water-gradient bg-clip-text text-transparent">
-                AquaWatch
-              </h2>
-              <p className="text-xs text-water-600">Monitoring System</p>
-            </div>
-          )}
+    <Sidebar className="border-0 bg-[#17181a] text-white">
+      <SidebarContent className="bg-[#17181a] px-4 py-7">
+        <div className="mb-12 flex items-center gap-3 px-2">
+          <img src="/logo - Copie.png" alt="AquaWatch" className="h-10 w-10 object-contain" />
+          {!collapsed && <span className="text-xl font-bold tracking-tight">AquaWatch</span>}
         </div>
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-water-600 font-medium">
-            {!collapsed && "Navigation"}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-2">
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      className={`${getNavCls({ isActive: isActive(item.url) })} 
-                        rounded-lg p-3 transition-all duration-200 flex items-center space-x-3
-                        ${collapsed ? 'justify-center' : ''}`}
-                    >
-                      <item.icon className="w-5 h-5" />
-                      {!collapsed && <span className="font-medium">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
+        <SidebarMenu className="gap-2">
+          {items.map((item) => (
+            <SidebarMenuItem key={item.url}>
+              <SidebarMenuButton asChild>
+                <NavLink to={item.url} className={({ isActive }) =>
+                  `flex h-12 items-center gap-3 rounded-md px-4 text-sm transition-colors ${isActive ? "bg-[#0869f7] text-white" : "text-zinc-400 hover:bg-white/5 hover:text-white"} ${collapsed ? "justify-center" : ""}`
+                }>
+                  <item.icon className="h-5 w-5" />
+                  {!collapsed && <span>{item.title}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
       </SidebarContent>
+      <SidebarFooter className="bg-[#17181a] p-5">
+        <button onClick={handleLogout} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-white/10 text-sm text-zinc-200 transition hover:bg-white/15">
+          <LogOut className="h-4 w-4" />{!collapsed && "Déconnexion"}
+        </button>
+      </SidebarFooter>
     </Sidebar>
   );
 }
