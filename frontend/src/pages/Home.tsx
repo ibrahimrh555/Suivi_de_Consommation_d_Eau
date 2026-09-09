@@ -54,7 +54,7 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-white font-sans text-[#14183e]">
+    <div className="min-w-0 w-full flex-1 min-h-screen overflow-x-hidden bg-white font-sans text-[#14183e]">
       <LandingNavbar onLogin={() => setIsLoginOpen(true)} onNavigate={scrollTo} />
       <main>
         <HeroSection onLogin={() => setIsLoginOpen(true)} onNavigate={scrollTo} />
