@@ -35,7 +35,9 @@ jobs:
       DJANGO_SECRET_KEY: ci-only-secret-key
       DJANGO_DEBUG: "True"
       DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
-      DATABASE_URL: mysql://aquawatch:aquawatch@127.0.0.1:3306/aquawatch_test
+      # Django creates and drops test_aquawatch_test during the test suite.
+      # The container root account has the required CREATE DATABASE privilege.
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/aquawatch_test
       DB_SSL_REQUIRED: "False"
     steps:
       - uses: actions/checkout@v4
