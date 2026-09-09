@@ -82,10 +82,10 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     "default": dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        default="mysql://aquawatch:aquawatch@127.0.0.1:3306/aquawatch",
         conn_max_age=600,
         conn_health_checks=True,
-        ssl_require=bool(os.environ.get("DATABASE_URL")) and not DEBUG,
+        ssl_require=os.environ.get("DB_SSL_REQUIRED", "False").lower() == "true",
     )
 }
 
