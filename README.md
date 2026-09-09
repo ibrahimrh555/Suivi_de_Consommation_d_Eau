@@ -69,6 +69,8 @@ Variables principales :
 | `VITE_API_URL` | URL de l’API utilisée par React |
 
 Ne publiez jamais votre fichier `.env` ni vos identifiants de base de données.
+Pour MySQL, retirez l’ancien paramètre PostgreSQL `?sslmode=require` de l’URL ;
+utilisez `DB_SSL_REQUIRED=True` lorsque TLS est nécessaire.
 
 ### 3. Lancer le backend
 
