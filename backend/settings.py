@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 from pathlib import Path
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import dj_database_url
 from dotenv import load_dotenv
@@ -82,14 +83,35 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+DATABASE_URL = os.environ.get(
+    "DATABASE_URL",
+    "mysql://aquawatch:aquawatch@127.0.0.1:3306/aquawatch",
+)
+
+# `sslmode` belongs to PostgreSQL and makes PyMySQL crash. Ignore it when an
+# older .env file is reused; MySQL TLS is controlled by DB_SSL_REQUIRED.
+if DATABASE_URL.startswith(("mysql://", "mysql2://")):
+    parsed_database_url = urlsplit(DATABASE_URL)
+    mysql_query = [
+        (key, value)
+        for key, value in parse_qsl(parsed_database_url.query, keep_blank_values=True)
+        if key.lower() not in {"sslmode", "ssl-mode"}
+    ]
+    DATABASE_URL = urlunsplit(parsed_database_url._replace(query=urlencode(mysql_query)))
+
 DATABASES = {
-    "default": dj_database_url.config(
-        default="mysql://aquawatch:aquawatch@127.0.0.1:3306/aquawatch",
+    "default": dj_database_url.parse(
+        DATABASE_URL,
         conn_max_age=600,
         conn_health_checks=True,
-        ssl_require=os.environ.get("DB_SSL_REQUIRED", "False").lower() == "true",
     )
 }
+
+if (
+    DATABASES["default"]["ENGINE"] == "django.db.backends.mysql"
+    and os.environ.get("DB_SSL_REQUIRED", "False").lower() == "true"
+):
+    DATABASES["default"].setdefault("OPTIONS", {})["ssl"] = {}
 
 
 # Password validation
