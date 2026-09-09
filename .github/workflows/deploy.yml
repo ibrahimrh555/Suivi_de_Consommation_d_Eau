@@ -16,10 +16,27 @@ jobs:
   backend-tests:
     name: Backend checks
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: aquawatch_test
+          MYSQL_USER: aquawatch
+          MYSQL_PASSWORD: aquawatch
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
     env:
       DJANGO_SECRET_KEY: ci-only-secret-key
       DJANGO_DEBUG: "True"
       DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
+      DATABASE_URL: mysql://aquawatch:aquawatch@127.0.0.1:3306/aquawatch_test
+      DB_SSL_REQUIRED: "False"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -84,4 +101,3 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy frontend/dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT }}
-

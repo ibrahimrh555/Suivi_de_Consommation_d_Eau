@@ -17,7 +17,7 @@ AquaWatch est une application web de suivi de la consommation d’eau domestique
 |---|---|
 | IoT | ESP32, capteur de débit YF-S201 |
 | Backend | Python, Django, Django REST Framework |
-| Base de données | PostgreSQL (Neon en production), SQLite en local |
+| Base de données | MySQL 8 (local, tests et production) |
 | Frontend | React, TypeScript, Vite |
 | Interface | Tailwind CSS, shadcn/ui, Recharts |
 
@@ -32,7 +32,7 @@ Capteur YF-S201 → ESP32 → API Django REST → MySQL
 - Python 3.11 ou version supérieure ;
 - Node.js 20 ou version supérieure ;
 - npm ;
-- un compte PostgreSQL Neon pour le déploiement.
+- une instance MySQL 8 locale ou hébergée.
 
 ## Installation
 
@@ -63,7 +63,8 @@ Variables principales :
 |---|---|
 | `DJANGO_SECRET_KEY` | Clé secrète Django |
 | `DJANGO_DEBUG` | Mode développement (`True` ou `False`) |
-| `DATABASE_URL` | Connexion PostgreSQL Neon (SQLite si absente en local) |
+| `DATABASE_URL` | Connexion MySQL au format `mysql://user:password@host:3306/database` |
+| `DB_SSL_REQUIRED` | Active TLS pour une base MySQL hébergée (`True` ou `False`) |
 | `CORS_ALLOWED_ORIGINS` | Origines autorisées pour le frontend |
 | `VITE_API_URL` | URL de l’API utilisée par React |
 
@@ -115,7 +116,7 @@ La production utilise :
 
 - Cloudflare Pages pour le frontend ;
 - Koyeb pour l'API Django ;
-- Neon pour PostgreSQL.
+- un fournisseur MySQL compatible avec une connexion externe sécurisée.
 
 Les Pull Requests vers `main` doivent réussir les contrôles backend et frontend.
 Le workflow de production ne s'exécute qu'après un push ou un merge dans `main`.
@@ -142,6 +143,7 @@ Configurez le service depuis le dépôt GitHub, branche `main`, avec le
 `Dockerfile` situé à la racine. Ajoutez au service :
 
 - `DATABASE_URL`
+- `DB_SSL_REQUIRED=True` si votre fournisseur MySQL impose TLS
 - `DJANGO_SECRET_KEY`
 - `DJANGO_DEBUG=False`
 - `DJANGO_ALLOWED_HOSTS=.koyeb.app`
